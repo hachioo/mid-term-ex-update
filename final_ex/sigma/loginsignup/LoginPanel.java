@@ -124,7 +124,7 @@ public class LoginPanel extends JPanel {
             dbConnect db = new dbConnect();
             try (Connection conn = db.getConnection()) {
                 if (conn == null) {
-                    JOptionPane.showMessageDialog(this, "Database connection error!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Database connection error!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 // query login by the infomation in the database

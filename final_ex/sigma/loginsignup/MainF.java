@@ -14,7 +14,7 @@ public class MainF extends JFrame {
         });
     }
     public MainF() {
-        // window appli name maybe
+        // window app name
         // window detail
         this.setTitle("Doro Spaces");
         this.setSize(1000, 600);

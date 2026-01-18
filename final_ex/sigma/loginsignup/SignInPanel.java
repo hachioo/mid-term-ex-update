@@ -109,7 +109,6 @@ public class SignInPanel extends JPanel {
                         return;
                     }
                 }
-
                 // INSERT
                 String insertSql = "INSERT INTO users (username, email, full_name, password) VALUES (?, ?, ?, ?)";
                 try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
