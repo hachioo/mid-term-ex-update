@@ -14,25 +14,21 @@ public class HomeF extends JFrame {
 
     public HomeF(String username) {
         this.username = username;
-        // Window settings
         this.setTitle("DoroSpaces - Financial Management: " + username);
         this.setSize(1000, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setLayout(new BorderLayout());
 
-
         ImageIcon icon = new ImageIcon(getClass().getResource("/src/5.png"));
         this.setIconImage(icon.getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(new Color(161, 161, 161));
         headerPanel.setPreferredSize(new Dimension(1000, 100));
         headerPanel.setLayout(new BorderLayout());
 
-        // create panel
         JPanel leftHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 20));
         leftHeaderPanel.setBackground(new Color(161, 161, 161));
 
@@ -47,18 +43,15 @@ public class HomeF extends JFrame {
         leftHeaderPanel.add(logoLabel);
         leftHeaderPanel.add(welcomeLabel);
 
-    
         balanceLabel = new JLabel("Total: 0 $  ");
         balanceLabel.setForeground(Color.WHITE);
         balanceLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         balanceLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 20)); 
 
         headerPanel.add(leftHeaderPanel, BorderLayout.WEST); 
-        headerPanel.add(balanceLabel, BorderLayout.EAST);    
-
+        headerPanel.add(balanceLabel, BorderLayout.EAST);
         this.add(headerPanel, BorderLayout.NORTH);
 
-        //filter & table
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         filterPanel.setBackground(Color.WHITE);
         
@@ -68,7 +61,6 @@ public class HomeF extends JFrame {
         String[] options = {"All", "Receive", "Buy"};
         filterBox = new JComboBox<>(options);
         filterBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
         filterPanel.add(filterLabel);
         filterPanel.add(filterBox);
 
@@ -85,23 +77,17 @@ public class HomeF extends JFrame {
         centerPanel.add(scrollPane, BorderLayout.CENTER);
         this.add(centerPanel, BorderLayout.CENTER);
 
-        //buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
-        
         JButton addIncomeBtn = new JButton("Receive");
         styleButton(addIncomeBtn, new Color(46, 204, 113));
-        
         JButton addExpenseBtn = new JButton("Buy");
         styleButton(addExpenseBtn, new Color(231, 76, 60));
-
         JButton changebtn = new JButton("Edit");
         styleButton(changebtn, new Color(228, 155, 15));
-
         JButton delbtn = new JButton("Delete this month transactions");
         styleButton(delbtn, new Color(8, 96, 168));
         delbtn.setPreferredSize(new Dimension(280, 40));
-        
         JButton logoutBtn = new JButton("Logout");
         styleButton(logoutBtn, Color.GRAY);
         
@@ -110,10 +96,8 @@ public class HomeF extends JFrame {
         buttonPanel.add(changebtn);
         buttonPanel.add(delbtn);
         buttonPanel.add(logoutBtn);
-
         this.add(buttonPanel, BorderLayout.SOUTH);
 
-        //btn action
         delbtn.addActionListener(e ->{
             int confirm = JOptionPane.showConfirmDialog(
             this, 
@@ -131,10 +115,8 @@ public class HomeF extends JFrame {
                 PreparedStatement ps = conn.prepareStatement(sql);
                 ps.setString(1, username);
                 int rowsDeleted = ps.executeUpdate();
-                
                 if (rowsDeleted > 0) {
                     JOptionPane.showMessageDialog(this, "Complete! Wipe" + rowsDeleted + " data.");
-                    
                     loadData("All"); 
                 } else {
                     JOptionPane.showMessageDialog(this, "No transactions from this month were found to delete.");
@@ -232,19 +214,16 @@ public class HomeF extends JFrame {
         btn.setPreferredSize(new Dimension(150, 40));
     }
 
-    // UPDATED loadData method with filtering parameter
     private void loadData(String filterType) {
-        tableModel.setRowCount(0); // Clear table
+        tableModel.setRowCount(0);
         double totalIncome = 0;
         double totalExpense = 0;
-        double currentViewTotal = 0; // Total for the current filtered view
+        double currentViewTotal = 0;
 
         dbConnect db = new dbConnect();
         try (Connection conn = db.getConnection()) {
             String sql;
             PreparedStatement ps;
-
-            // Construct SQL based on filter
             if (filterType.equals("All")) {
                 sql = "SELECT * FROM transactions WHERE username = ? ORDER BY date_created ASC";
                 ps = conn.prepareStatement(sql);
@@ -255,7 +234,6 @@ public class HomeF extends JFrame {
                 ps.setString(1, username);
                 ps.setString(2, filterType);
             }
-
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -266,17 +244,15 @@ public class HomeF extends JFrame {
 
                 tableModel.addRow(new Object[]{id, type, String.format("%,.0f", amount), desc, date});
 
-                // Calculate totals for summary logic
                 if (type.equals("Receive")) {
                     totalIncome += amount;
                     currentViewTotal += amount;
                 } else if (type.equals("Buy")) {
                     totalExpense += amount;
-                    currentViewTotal -= amount; // Subtract expenses if viewing logic requires it
+                    currentViewTotal -= amount;
                 }
             }
 
-            // Update Balance Label Logic
             if (filterType.equals("All")) {
                 double balance = totalIncome - totalExpense;
                 balanceLabel.setText("Total Balance: " + String.format("%,.0f $  ", balance));
@@ -286,12 +262,10 @@ public class HomeF extends JFrame {
                 double expenseSum = 0;
                  balanceLabel.setText("Total Spent: " + String.format("%,.0f $  ", totalExpense));
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
     private void showAddTransactionDialog(String type) {
         JDialog dialog = new JDialog(this, "Add " + (type.equals("Receive") ? "amount received" : "money out"), true);
         dialog.setSize(400, 300);
@@ -325,11 +299,8 @@ public class HomeF extends JFrame {
                     ps.setString(3, type);
                     ps.setString(4, desc);
                     ps.executeUpdate();
-                    
                     JOptionPane.showMessageDialog(dialog, "Task complete!");
                     dialog.dispose();
-                    
-                    // Refresh data with current filter selection
                     String currentFilter = (String) filterBox.getSelectedItem();
                     loadData(currentFilter); 
                 }
@@ -343,7 +314,6 @@ public class HomeF extends JFrame {
         dialog.add(descLbl);
         dialog.add(descTxt);
         dialog.add(saveBtn);
-        
         dialog.setVisible(true);
     }
 }
